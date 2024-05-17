@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, url_for, flash
 from werkzeug.utils import redirect
 import mariadb
 import sys
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+
 app.secret_key = 'many random bytes'
 
 # MariaDB Configuration
@@ -20,6 +23,9 @@ try:
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
+
+# static information as metric
+metrics.info('app_info', 'Application info', version='1.0.3')
 
 @app.route('/')
 def Index():
@@ -61,3 +67,5 @@ def update():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
+
+
